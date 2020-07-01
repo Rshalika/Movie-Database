@@ -1,5 +1,6 @@
 package com.strawhat.moviedatabase.di
 
+import com.strawhat.moviedatabase.ui.details.DetailsViewModel
 import com.strawhat.moviedatabase.vm.MainViewModel
 import dagger.Component
 
@@ -7,4 +8,6 @@ import dagger.Component
 interface ApplicationComponent {
 
     fun inject(viewModel: MainViewModel)
+
+    fun inject(viewModel: DetailsViewModel)
 }

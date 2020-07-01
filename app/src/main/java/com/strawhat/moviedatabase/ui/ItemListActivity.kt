@@ -12,6 +12,7 @@ import com.strawhat.moviedatabase.R
 
 import com.strawhat.moviedatabase.vm.MainViewModel
 import com.strawhat.moviedatabase.vm.events.MainViewState
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.android.synthetic.main.item_list.*
@@ -25,7 +26,11 @@ class ItemListActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainViewModel>()
 
     private lateinit var layoutManager: LinearLayoutManager
+
     private lateinit var adapter: MovieListAdapter
+
+
+    private val disposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,13 +46,15 @@ class ItemListActivity : AppCompatActivity() {
         setupRecyclerView(findViewById(R.id.item_list))
         setUpLoadMoreListener()
 
-        viewModel.viewStateRelay.subscribeBy(
-            onNext = {
-                updateState(it)
-            },
-            onError = {
-                throw OnErrorNotImplementedException(it)
-            }
+        disposable.add(
+            viewModel.viewStateRelay.subscribeBy(
+                onNext = {
+                    updateState(it)
+                },
+                onError = {
+                    throw OnErrorNotImplementedException(it)
+                }
+            )
         )
     }
 
@@ -55,9 +62,14 @@ class ItemListActivity : AppCompatActivity() {
         adapter.setMovies(state.items.toMutableList())
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.dispose()
+    }
+
     private fun setupRecyclerView(recyclerView: RecyclerView) {
         layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        adapter = MovieListAdapter(this , twoPane)
+        adapter = MovieListAdapter(this, twoPane)
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
     }

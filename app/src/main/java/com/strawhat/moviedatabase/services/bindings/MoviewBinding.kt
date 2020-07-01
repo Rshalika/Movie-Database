@@ -1,5 +1,7 @@
 package com.strawhat.moviedatabase.services.bindings
+
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 
 data class MovieResponse(
@@ -40,4 +42,4 @@ data class Movie(
     var voteAverage: Double,
     @SerializedName("vote_count")
     var voteCount: Int
-)
+) : Serializable

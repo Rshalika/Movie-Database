@@ -1,5 +1,6 @@
-package com.strawhat.moviedatabase.ui
+package com.strawhat.moviedatabase.ui.details
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -18,11 +21,11 @@ import com.strawhat.moviedatabase.ui.details.ItemDetailActivity
 import com.strawhat.moviedatabase.ui.details.ItemDetailFragment
 
 
-class MovieListAdapter(
-    private val parentActivity: ItemListActivity,
+class SimilarMoviesListAdapter(
+    private val parentActivity: FragmentActivity,
     private val twoPane: Boolean
 ) :
-    RecyclerView.Adapter<MovieListAdapter.ViewHolder>() {
+    RecyclerView.Adapter<SimilarMoviesListAdapter.ViewHolder>() {
 
     private val mDiffer: AsyncListDiffer<Movie> = AsyncListDiffer<Movie>(this, DIFF_CALLBACK)
 
@@ -53,7 +56,7 @@ class MovieListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_list_content, parent, false)
+            .inflate(R.layout.item_list_horizontal, parent, false)
         return ViewHolder(view)
     }
 
@@ -64,7 +67,7 @@ class MovieListAdapter(
 
         Glide
             .with(parentActivity)
-            .load("${BuildConfig.IMAGES_URL_PREFIX}${item.backdropPath}")
+            .load("${BuildConfig.IMAGES_URL_PREFIX}${item.posterPath}")
             .centerCrop()
 //            .placeholder(R.drawable.loader_image)
             .into(holder.imageView)
