@@ -7,6 +7,14 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+
     defaultConfig {
         applicationId "com.strawhat.moviedatabase"
         minSdkVersion 23
@@ -18,7 +26,17 @@ android {
     }
 
     buildTypes {
+        debug{
+            buildConfigField "String", "API_URL",'"https://api.themoviedb.org/"'
+            buildConfigField "String", "IMAGES_URL_PREFIX",'"https://image.tmdb.org/t/p/w500"'
+            buildConfigField "String", "API_KEY",'"b2bf9888e414ce07e7854c4a932379dc"'
+
+        }
         release {
+            buildConfigField "String", "IMAGES_URL_PREFIX",'"https://image.tmdb.org/t/p/w500"'
+            buildConfigField "String", "API_KEY",'"b2bf9888e414ce07e7854c4a932379dc"'
+            buildConfigField "String", "API_URL",'"https://api.themoviedb.org/"'
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -41,7 +59,8 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.7.2"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
 
     // Android standard library dependencies

@@ -1,11 +1,10 @@
-package com.strawhat.moviedatabase
+package com.strawhat.moviedatabase.ui
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
+import com.strawhat.moviedatabase.R
 
 
 class ItemDetailActivity : AppCompatActivity() {
@@ -21,7 +20,8 @@ class ItemDetailActivity : AppCompatActivity() {
 
             val fragment = ItemDetailFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ItemDetailFragment.ARG_ITEM_ID,
+                    putString(
+                        ItemDetailFragment.ARG_ITEM_ID,
                             intent.getStringExtra(ItemDetailFragment.ARG_ITEM_ID))
                 }
             }
