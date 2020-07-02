@@ -62,8 +62,6 @@ class SimilarMoviesListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mDiffer.currentList[position]
-        holder.titleView.text = item.name
-        holder.ratingView.text = item.voteAverage.toString()
 
         Glide
             .with(parentActivity)
@@ -85,9 +83,7 @@ class SimilarMoviesListAdapter(
     override fun getItemCount() = mDiffer.currentList.size
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val titleView: TextView = view.findViewById(R.id.title)
         val imageView: ImageView = view.findViewById(R.id.list_item_image)
-        val ratingView: TextView = view.findViewById(R.id.rating)
     }
 
     companion object {

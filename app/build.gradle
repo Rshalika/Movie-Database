@@ -61,6 +61,9 @@ dependencies {
     implementation "com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation 'com.google.android:flexbox:2.0.1'
+    implementation 'androidx.palette:palette:1.0.0'
+
 
 
     // Android standard library dependencies

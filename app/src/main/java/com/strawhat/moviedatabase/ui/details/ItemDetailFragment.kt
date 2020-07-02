@@ -1,25 +1,30 @@
 package com.strawhat.moviedatabase.ui.details
 
+import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.strawhat.moviedatabase.BuildConfig
 import com.strawhat.moviedatabase.MyApplication
 import com.strawhat.moviedatabase.R
 import com.strawhat.moviedatabase.services.bindings.Movie
+import com.strawhat.moviedatabase.util.GenresUtil
 import com.strawhat.moviedatabase.vm.events.MainViewState
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.exceptions.OnErrorNotImplementedException
 import io.reactivex.rxjava3.kotlin.subscribeBy
-import kotlinx.android.synthetic.main.activity_item_detail.*
 import kotlinx.android.synthetic.main.item_detail.*
 
 
@@ -76,12 +81,78 @@ class ItemDetailFragment : Fragment() {
                 .load("${BuildConfig.IMAGES_URL_PREFIX}${movie.backdropPath}")
                 .centerCrop()
 //            .placeholder(R.drawable.loader_image)
-                .into(movieImage)
+//                .into(movieImage)
+                .into(object : CustomViewTarget<ImageView, Drawable>(movieImage) {
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+
+                    }
+
+                    override fun onResourceCleared(placeholder: Drawable?) {
+
+                    }
+
+                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                        movieImage.setImageDrawable(resource)
+                        val toBitmap = resource.toBitmap()
+                        val builder = Palette.Builder(toBitmap)
+                        val palette = builder.generate()
+
+                        val dominantSwatch = palette.dominantSwatch
+                        val vibrantSwatch = palette.vibrantSwatch
+                        val lightVibrantSwatch = palette.lightVibrantSwatch
+                        val lightMutedSwatch = palette.lightMutedSwatch
+                        val darkVibrantSwatch = palette.darkVibrantSwatch
+                        val darkMutedSwatch = palette.darkMutedSwatch
+                        val secondaryLightColor = resources.getColor(R.color.secondaryLightColor, requireContext().theme)
+                        val _primaryColor = resources.getColor(R.color.primaryColor, requireContext().theme)
+                        val primaryDarkColor = resources.getColor(R.color.primaryDarkColor, requireContext().theme)
+
+                        val lightColor = arrayListOf(
+                            lightVibrantSwatch?.rgb,
+                            lightMutedSwatch?.rgb,
+                            secondaryLightColor
+                        ).find { it != null }!!
+
+                        val primaryColor = arrayListOf(
+                            vibrantSwatch?.rgb,
+                            dominantSwatch?.rgb,
+                            _primaryColor
+                        ).find { it != null }!!
+
+                        val darkColor = arrayListOf(
+                            darkVibrantSwatch?.rgb,
+                            darkMutedSwatch?.rgb,
+                            primaryDarkColor
+                        ).find { it != null }!!
+
+                        (activity?.findViewById<CollapsingToolbarLayout>(R.id.toolbar_layout))?.setContentScrimColor(primaryColor)
+                        activity?.run {
+                            val window: Window = window
+                            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                            window.statusBarColor = darkColor
+                        }
+                        rating_bar.backgroundTintList = ColorStateList.valueOf(lightColor)
+                        details_rating.setTextColor(lightColor)
+                    }
+
+                })
+
         }
         description.text = movie.overview
         details_rating.text = movie.voteAverage.toString()
         setupRecyclerView(similar_movies_list)
         setUpLoadMoreListener(similar_movies_list)
+        details_title.text = movie.name
+        movie.genreIds.forEach {
+            val genre = GenresUtil.genreMap[it]!!
+            val textView =
+                LayoutInflater.from(requireContext()).inflate(R.layout.genre_name_text_view, categories_list, false) as TextView
+            textView.text = genre
+            categories_list.addView(textView)
+        }
+        rating_bar.rating = movie.voteAverage.div(2).toFloat()
+
+
         disposable.add(
             viewModel.viewStateRelay.subscribeBy(
                 onNext = {

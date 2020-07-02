@@ -16,6 +16,8 @@ import com.strawhat.moviedatabase.R
 import com.strawhat.moviedatabase.services.bindings.Movie
 import com.strawhat.moviedatabase.ui.details.ItemDetailActivity
 import com.strawhat.moviedatabase.ui.details.ItemDetailFragment
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MovieListAdapter(
@@ -61,6 +63,13 @@ class MovieListAdapter(
         val item = mDiffer.currentList[position]
         holder.titleView.text = item.name
         holder.ratingView.text = item.voteAverage.toString()
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.firstAirDate)?.let {
+            val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+            cal.time = it
+            val year = cal[Calendar.YEAR]
+            holder.yarView.text = year.toString()
+        }
+
 
         Glide
             .with(parentActivity)
@@ -85,6 +94,7 @@ class MovieListAdapter(
         val titleView: TextView = view.findViewById(R.id.title)
         val imageView: ImageView = view.findViewById(R.id.list_item_image)
         val ratingView: TextView = view.findViewById(R.id.rating)
+        val yarView: TextView = view.findViewById(R.id.year)
     }
 
     companion object {
