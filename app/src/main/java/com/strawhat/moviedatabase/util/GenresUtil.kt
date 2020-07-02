@@ -17,6 +17,7 @@ object GenresUtil {
         Pair(10766, "Soap"),
         Pair(10767, "Talk"),
         Pair(10768, "War & Politics"),
+        Pair(878, "Science Fiction"),
         Pair(37, "Western")
     )
 }

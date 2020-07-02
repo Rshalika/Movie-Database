@@ -144,11 +144,13 @@ class ItemDetailFragment : Fragment() {
         setUpLoadMoreListener(similar_movies_list)
         details_title.text = movie.name
         movie.genreIds.forEach {
-            val genre = GenresUtil.genreMap[it]!!
-            val textView =
-                LayoutInflater.from(requireContext()).inflate(R.layout.genre_name_text_view, categories_list, false) as TextView
-            textView.text = genre
-            categories_list.addView(textView)
+            val genre = GenresUtil.genreMap[it]?.let {
+                val textView =
+                    LayoutInflater.from(requireContext()).inflate(R.layout.genre_name_text_view, categories_list, false) as TextView
+                textView.text = it
+                categories_list.addView(textView)
+            }
+
         }
         rating_bar.rating = movie.voteAverage.div(2).toFloat()
 

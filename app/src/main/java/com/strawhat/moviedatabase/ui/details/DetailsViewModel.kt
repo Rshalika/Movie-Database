@@ -38,7 +38,7 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
                 return@flatMap movieRepository.loadSimilarMovies(movieId, action.page)
                     .subscribeOn(Schedulers.io())
                     .map(fun(it: List<Movie>): ViewResult {
-                        return LoadPageSuccessResult(action.page, it)
+                        return LoadPageSuccessResult(action.page, it,false)
                     })
                     .onErrorReturn {
                         LoadPageFailResult(it)
@@ -50,8 +50,8 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
 
         val UI = ObservableTransformer<ViewAction, ViewResult> { event ->
             return@ObservableTransformer event.publish { shared ->
-                return@publish Observable.mergeArray(shared.ofType(LoadPageAction::class.java))
-                    .compose(loadPage)
+                return@publish Observable.mergeArray(shared.ofType(LoadPageAction::class.java).compose(loadPage))
+
             }
         }
 
@@ -104,6 +104,21 @@ class DetailsViewModel(application: Application) : AndroidViewModel(application)
                 if (state.loading.not()) {
                     viewActionsRelay.accept(LoadPageAction(state.lastPage + 1))
                 }
+                state.copy()
+            }
+            is SearchRequestResult -> {
+                state.copy()
+            }
+            SearchActivatedResult -> {
+                state.copy()
+            }
+            SearchDeActivatedResult -> {
+                state.copy()
+            }
+            is SearchSuccessResult -> {
+                state.copy()
+            }
+            is SearchPageFailResult -> {
                 state.copy()
             }
         }

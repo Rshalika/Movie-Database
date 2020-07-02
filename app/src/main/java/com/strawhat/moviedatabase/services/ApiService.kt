@@ -23,4 +23,12 @@ interface ApiService {
         @Query("api_key") apiKey: String = BuildConfig.API_KEY,
         @Query("language") language: String = "en-US"
     ): Observable<MovieResponse>
+
+    @GET("/3/search/tv")
+    fun searchForMovies(
+        @Query("query") query: String,
+        @Query("page") page: Int,
+        @Query("api_key") apiKey: String = BuildConfig.API_KEY,
+        @Query("language") language: String = "en-US"
+    ): Observable<MovieResponse>
 }

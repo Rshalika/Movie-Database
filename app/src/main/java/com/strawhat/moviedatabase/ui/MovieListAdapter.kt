@@ -16,6 +16,7 @@ import com.strawhat.moviedatabase.R
 import com.strawhat.moviedatabase.services.bindings.Movie
 import com.strawhat.moviedatabase.ui.details.ItemDetailActivity
 import com.strawhat.moviedatabase.ui.details.ItemDetailFragment
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -63,11 +64,15 @@ class MovieListAdapter(
         val item = mDiffer.currentList[position]
         holder.titleView.text = item.name
         holder.ratingView.text = item.voteAverage.toString()
-        SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.firstAirDate)?.let {
-            val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
-            cal.time = it
-            val year = cal[Calendar.YEAR]
-            holder.yarView.text = year.toString()
+        try {
+            SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(item.firstAirDate)?.let {
+                val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+                cal.time = it
+                val year = cal[Calendar.YEAR]
+                holder.yarView.text = year.toString()
+            }
+        }catch (e:Exception){
+
         }
 
 

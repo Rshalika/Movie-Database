@@ -3,4 +3,9 @@
     <string name="title_item_detail">Item Detail</string>
     <string name="similar_tv_shows">Similar TV Shows</string>
     <string name="from_ten">/10</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">Search for movies</string>
+    <string name="hint_search">Searching for…</string>
+    <string name="search_description">City, Cities</string>
+    <string name="showing_search_results_for">Showing search results for :</string>
 </resources>

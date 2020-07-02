@@ -5,8 +5,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:allowBackup="true"
         android:name=".MyApplication"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -14,6 +14,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
+            android:launchMode="singleTop"
             android:name=".ui.ItemListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -22,7 +23,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
+
         <activity
             android:name=".ui.details.ItemDetailActivity"
             android:label="@string/title_item_detail"
@@ -32,6 +39,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.strawhat.moviedatabase.ui.ItemListActivity" />
         </activity>
+
+        <provider
+            android:authorities="com.strawhat.moviedatabase.search"
+            android:name=".ui.search.CitySuggestionProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

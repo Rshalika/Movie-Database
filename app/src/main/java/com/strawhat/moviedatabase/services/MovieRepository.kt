@@ -6,11 +6,15 @@ import io.reactivex.rxjava3.core.Observable
 
 class MovieRepository(private val apiService: ApiService) {
 
-    fun loadPage(page: Int): Observable<List<Movie>> {
-        return apiService.getPopularMovies(page).map { it.movies }
+    fun loadPage(page: Int): @NonNull Observable<Pair<List<Movie>, Boolean>> {
+        return apiService.getPopularMovies(page).map { Pair(it.movies, it.page < it.totalPages) }
     }
 
     fun loadSimilarMovies(tvId: String, page: Int): @NonNull Observable<List<Movie>> {
         return apiService.getSimilarMovies(tvId, page).map { it.movies }
+    }
+
+    fun searchForMovies(query: String, page: Int): @NonNull Observable<Pair<List<Movie>, Boolean>> {
+        return apiService.searchForMovies(query, page).map { Pair(it.movies, it.page < it.totalPages) }
     }
 }

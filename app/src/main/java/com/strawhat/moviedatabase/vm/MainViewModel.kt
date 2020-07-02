@@ -37,8 +37,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return@ObservableTransformer event.flatMap { action ->
                 return@flatMap movieRepository.loadPage(action.page)
                     .subscribeOn(Schedulers.io())
-                    .map(fun(it: List<Movie>): ViewResult {
-                        return LoadPageSuccessResult(action.page, it)
+                    .map(fun(it: Pair<List<Movie>, Boolean>): ViewResult {
+                        return LoadPageSuccessResult(action.page, it.first, it.second)
                     })
                     .onErrorReturn {
                         LoadPageFailResult(it)
@@ -48,17 +48,37 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
+        val search = ObservableTransformer<SearchAction, ViewResult> { event ->
+            return@ObservableTransformer event.flatMap { action ->
+                return@flatMap movieRepository.searchForMovies(action.query, action.page)
+                    .subscribeOn(Schedulers.io())
+                    .map(fun(it: Pair<List<Movie>, Boolean>): ViewResult {
+                        return SearchSuccessResult(action.page, it.first, it.second)
+                    })
+                    .onErrorReturn {
+                        SearchPageFailResult(it)
+                    }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .startWithItem(LoadingResult)
+            }
+        }
+
         val UI = ObservableTransformer<ViewAction, ViewResult> { event ->
             return@ObservableTransformer event.publish { shared ->
-                return@publish Observable.mergeArray(shared.ofType(LoadPageAction::class.java))
-                    .compose(loadPage)
+                return@publish Observable.mergeArray(
+                    shared.ofType(LoadPageAction::class.java).compose(loadPage),
+                    shared.ofType(SearchAction::class.java).compose(search),
+                    shared.ofType(SearchActivatedAction::class.java).map { SearchActivatedResult },
+                    shared.ofType(SearchDeActivatedAction::class.java).map { SearchDeActivatedResult }
+                )
+
             }
         }
 
         disposable.add(
             viewActionsRelay
                 .compose(UI)
-                .mergeWith(viewResultsRelay )
+                .mergeWith(viewResultsRelay)
                 .observeOn(AndroidSchedulers.mainThread())
                 .scan(previousState, { state, result ->
                     return@scan reduce(state, result)
@@ -85,6 +105,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
                 state.copy(
+                    hasNext = result.hasNext,
                     lastPage = result.pageNumber,
                     items = items,
                     loading = false,
@@ -101,10 +122,47 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 state.copy(loading = true)
             }
             LoadPageRequestedResult -> {
-                if (state.loading.not()) {
+                if (state.loading.not() && state.hasNext && state.searchEnabled.not()) {
                     viewActionsRelay.accept(LoadPageAction(state.lastPage + 1))
                 }
+                if (state.loading.not() && state.hasNext && state.searchEnabled && state.searchQuery.isNullOrBlank().not()) {
+                    viewActionsRelay.accept(SearchAction(state.lastPage + 1, state.searchQuery!!))
+                }
                 state.copy()
+            }
+            SearchActivatedResult -> {
+                state.copy(searchEnabled = true, lastPage = 0, items = linkedSetOf(), hasNext = true)
+            }
+            SearchDeActivatedResult -> {
+                loadPageRequested()
+                state.copy(searchEnabled = false, lastPage = 0, items = linkedSetOf())
+            }
+            is SearchSuccessResult -> {
+                val items = state.items
+                result.items.forEach {
+                    if (items.contains(it).not()) {
+                        items.add(it)
+                    }
+                }
+                state.copy(
+                    hasNext = result.hasNext,
+                    lastPage = result.pageNumber,
+                    items = items,
+                    loading = false,
+                    errorMessage = null
+                )
+            }
+            is SearchPageFailResult -> {
+                state.copy(
+                    loading = false,
+                    errorMessage = result.throwable.message
+                )
+            }
+            is SearchRequestResult -> {
+                if (state.loading.not() && state.hasNext) {
+                    viewActionsRelay.accept(SearchAction(state.lastPage + 1, result.query))
+                }
+                state.copy(searchQuery = result.query)
             }
         }
     }
@@ -116,6 +174,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPageRequested() {
         viewResultsRelay.accept(LoadPageRequestedResult)
+    }
+
+    fun searchActivated() {
+        viewActionsRelay.accept(SearchActivatedAction)
+    }
+
+    fun searchDeActivated() {
+        viewActionsRelay.accept(SearchDeActivatedAction)
+    }
+
+    fun search(query: String) {
+        viewResultsRelay.accept(SearchRequestResult(query))
     }
 
     override fun onCleared() {
